@@ -32,6 +32,7 @@ class CheckNotificationsCommand extends Command
 
         $this->params = $params;
         $this->wykop = $wykop;
+        $this->pushbullet = $pushbullet;
     }
 
     protected function configure(): void
