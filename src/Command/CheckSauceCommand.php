@@ -161,7 +161,7 @@ class CheckSauceCommand extends Command
                         $post->setStatus(Post::STATUS_NO_VALID_SAUCES);
                         $this->em->persist($post);
                         $this->em->flush();
-                        continue;
+                        continue 2;
                     }
 
                     // Clean artists

@@ -33,7 +33,7 @@ class EntryHelper
 
                     if (!is_array($post)) {
                         // API error, skip
-                        continue;
+                        continue 2;
                     }
 
                     if (is_array($post['tags']['artist'])) {
