@@ -1,6 +1,5 @@
 <?php
 
-// src/Command/CreateUserCommand.php
 namespace App\Command;
 
 use App\Service\Pushbullet;
