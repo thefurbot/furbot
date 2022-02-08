@@ -56,12 +56,32 @@ class HistoryCommand extends Command
             return Command::FAILURE;
         }
 
+        $status = 'Unknown';
+        switch ($post->getStatus()) {
+            case Post::STATUS_CHECKED:
+                $status = 'Checked';
+                break;
+
+            case Post::STATUS_COMMENTED:
+                $status = 'Commented';
+                break;
+
+            case Post::STATUS_NO_VALID_SAUCES:
+                $status = 'No valid sources found';
+                break;
+
+            case Post::STATUS_WYKOP_ERROR:
+                $status = 'Wykop error';
+                break;
+        }
+
         $io->section('Post info');
         $io->definitionList(
             ['ID' => $post->getEntryId()],
             ['Author' => $post->getAuthor()],
             ['URL' => 'https://wykop.pl/wpis/' . $post->getEntryId()],
-            ['Embed' => $post->getEmbed()]
+            ['Embed' => $post->getEmbed()],
+            ['Status' => $status]
         );
 
         $io->section('Sauces');
