@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Service\Pushbullet;
 use App\Service\Wykop;
+use App\Service\WykopException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,9 +23,9 @@ class CheckNotificationsCommand extends Command
 
     public function __construct(
         ParameterBagInterface $params,
-        Wykop $wykop,
-        Pushbullet $pushbullet,
-        string $name = null
+        Wykop                 $wykop,
+        Pushbullet            $pushbullet,
+        string                $name = null
     )
     {
         parent::__construct($name);
@@ -58,25 +59,36 @@ class CheckNotificationsCommand extends Command
         }
 
         // Ask Wykop for notifications
-        $notifications = $this->wykop->getNotifications();
-        if (empty($notifications->data)) {
-            $io->success('No new notifications!');
-            return Command::SUCCESS;
-        }
-
-        $sent = 0;
-
-        // Send the notifications to my master
-        foreach ($notifications->data as $notify) {
-
-            // If notification is unread, send a Pushbullet notification
-            if ($notify->new) {
-                $this->pushbullet->push('[furbot] Powiadomienie z Wykopu', $notify->body, $notify->url);
-                $sent++;
+        try {
+            $notifications = $this->wykop->getNotifications();
+            if (empty($notifications->data)) {
+                $io->success('No new notifications!');
+                return Command::SUCCESS;
             }
-        }
 
-        $io->success('Sent ' . $sent . ' new notifications!');
-        return Command::SUCCESS;
+            $sent = 0;
+
+            // Send the notifications to my master
+            foreach ($notifications->data as $notify) {
+
+                // If notification is unread, send a Pushbullet notification
+                if ($notify->new) {
+                    $this->pushbullet->push('[furbot] Powiadomienie z Wykopu', $notify->body, $notify->url);
+                    $sent++;
+                }
+            }
+
+            $io->success('Sent ' . $sent . ' new notifications!');
+            return Command::SUCCESS;
+
+            
+        } catch (WykopException $exception) {
+            $this->pushbullet->push(
+                '[furbot] Błąd API Wykopu',
+                $exception->getMessage() . "\n\n" . $exception->getFile() . ':' . $exception->getLine()
+            );
+
+            return Command::FAILURE;
+        }
     }
 }
