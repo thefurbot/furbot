@@ -30,6 +30,9 @@ class Wykop
         return md5($this->secret . $request->url . (!empty($request->post) ? implode(',', $request->post) : ''));
     }
 
+    /**
+     * @throws WykopException
+     */
     private function post($request)
     {
         $ch = curl_init();
@@ -50,9 +53,18 @@ class Wykop
 
         curl_close($ch);
 
-        return json_decode($server_output);
+        $data = json_decode($server_output);
+
+        if (!empty($data->error)) {
+            throw new WykopException("Wykop: " . $data->error->message_en);
+        }
+
+        return $data;
     }
 
+    /**
+     * @throws WykopException
+     */
     private function get($request)
     {
         $ch = curl_init();
@@ -71,7 +83,13 @@ class Wykop
 
         curl_close($ch);
 
-        return json_decode($server_output);
+        $data = json_decode($server_output);
+
+        if (!empty($data->error)) {
+            throw new WykopException("Wykop: " . $data->error->message_en);
+        }
+
+        return $data;
     }
 
     public function addEntry(MirkoEntry $entry)
@@ -131,33 +149,36 @@ class Wykop
         return true;
     }
 
+    /**
+     * @throws WykopException
+     */
     public function getTag(string $tag)
     {
         $request = new StdClass();
 
         $request->url = self::ENDPOINT . 'tags/entries/' . $tag . '/page/0/appkey/' . $this->appkey . '/userkey/' . $this->userkey;
-        $get = $this->get($request);
-
-        return $get;
+        return $this->get($request);
     }
 
+    /**
+     * @throws WykopException
+     */
     public function getStream()
     {
         $request = new StdClass();
 
         $request->url = self::ENDPOINT . 'entries/stream/page/0/appkey/' . $this->appkey . '/userkey/' . $this->userkey;
-        $get = $this->get($request);
-
-        return $get;
+        return $this->get($request);
     }
 
+    /**
+     * @throws WykopException
+     */
     public function getNotifications()
     {
         $request = new StdClass();
 
         $request->url = self::ENDPOINT . 'Notifications/Index/page/0/appkey/' . $this->appkey . '/userkey/' . $this->userkey;
-        $get = $this->get($request);
-
-        return $get;
+        return $this->get($request);
     }
 }
