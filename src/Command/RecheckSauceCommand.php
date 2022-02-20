@@ -174,6 +174,7 @@ class RecheckSauceCommand extends Command
                     } else {
                         $io->success('Added comment to Wykop');
                         $post->setStatus(Post::STATUS_COMMENTED);
+                        $post->setMessage($message);
                     }
                 } catch (WykopException $e) {
                     if (!$e->isCritical()) {
@@ -185,7 +186,6 @@ class RecheckSauceCommand extends Command
 
             // Save info to the db
             if (!$this->testmode) {
-                $post->setMessage($message);
                 $this->em->persist($post);
                 $this->em->flush();
             }
