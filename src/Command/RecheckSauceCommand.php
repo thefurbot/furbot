@@ -9,6 +9,7 @@ use App\Service\E621;
 use App\Service\EntryHelper;
 use App\Service\Saucenao;
 use App\Service\Wykop;
+use App\Service\WykopException;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -162,16 +163,23 @@ class RecheckSauceCommand extends Command
             if ($this->testmode) {
                 $io->warning('Test mode, not adding the comment');
             } else {
-                $comment = new MirkoComment($post->getEntryId(), $message);
-                $result = $this->wykop->addComment($comment);
+                try {
+                    $comment = new MirkoComment($post->getEntryId(), $message);
+                    $result = $this->wykop->addComment($comment);
 
-                // Set post status
-                if ($result === false) {
-                    $io->error('Unable to add comment on Wykop');
-                    $post->setStatus(Post::STATUS_WYKOP_ERROR);
-                } else {
-                    $io->success('Added comment to Wykop');
-                    $post->setStatus(Post::STATUS_COMMENTED);
+                    // Set post status
+                    if ($result === false) {
+                        $io->error('Unable to add comment on Wykop');
+                        $post->setStatus(Post::STATUS_WYKOP_ERROR);
+                    } else {
+                        $io->success('Added comment to Wykop');
+                        $post->setStatus(Post::STATUS_COMMENTED);
+                    }
+                } catch (WykopException $e) {
+                    if (!$e->isCritical()) {
+                        $io->error($e->getMessage());
+                        $post->setStatus(Post::STATUS_WYKOP_ERROR);
+                    }
                 }
             }
 

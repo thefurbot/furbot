@@ -56,7 +56,7 @@ class Wykop
         $data = json_decode($server_output);
 
         if (!empty($data->error)) {
-            throw new WykopException("Wykop: " . $data->error->message_pl . "\n\n" . json_encode($data, JSON_PRETTY_PRINT));
+            throw new WykopException("Wykop: " . $data->error->message_pl, 0, null, $data->error);
         }
 
         return $data;
@@ -92,7 +92,7 @@ class Wykop
         return $data;
     }
 
-    public function addEntry(MirkoEntry $entry)
+    public function addEntry(MirkoEntry $entry): ?int
     {
         $request = new StdClass();
 
@@ -109,11 +109,14 @@ class Wykop
         $post = $this->post($request);
         sleep(1);
 
-        if (empty($post->data->id)) return false;
+        if (empty($post->data->id)) return null;
         return $post->data->id;
     }
 
-    public function addComment(MirkoComment $entry)
+    /**
+     * @throws WykopException
+     */
+    public function addComment(MirkoComment $entry): ?int
     {
         $request = new StdClass();
 
@@ -129,11 +132,14 @@ class Wykop
         $post = $this->post($request);
         sleep(1);
 
-        if (empty($post->data->id)) return false;
+        if (empty($post->data->id)) return null;
         return $post->data->id;
     }
 
-    public function login()
+    /**
+     * @throws WykopException
+     */
+    public function login(): bool
     {
         $request = new StdClass();
 
