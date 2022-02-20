@@ -56,7 +56,7 @@ class Wykop
         $data = json_decode($server_output);
 
         if (!empty($data->error)) {
-            throw new WykopException("Wykop: " . $data->error->message_en);
+            throw new WykopException("Wykop: " . $data->error->message_pl . "\n\n" . json_encode($data, JSON_PRETTY_PRINT));
         }
 
         return $data;
@@ -86,7 +86,7 @@ class Wykop
         $data = json_decode($server_output);
 
         if (!empty($data->error)) {
-            throw new WykopException("Wykop: " . $data->error->message_en);
+            throw new WykopException("Wykop: " . $data->error->message_pl . "\n\n" . json_encode($data, JSON_PRETTY_PRINT));
         }
 
         return $data;
@@ -107,6 +107,7 @@ class Wykop
         }
 
         $post = $this->post($request);
+        sleep(1);
 
         if (empty($post->data->id)) return false;
         return $post->data->id;
@@ -126,6 +127,7 @@ class Wykop
         }
 
         $post = $this->post($request);
+        sleep(1);
 
         if (empty($post->data->id)) return false;
         return $post->data->id;

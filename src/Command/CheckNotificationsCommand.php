@@ -81,7 +81,7 @@ class CheckNotificationsCommand extends Command
             $io->success('Sent ' . $sent . ' new notifications!');
             return Command::SUCCESS;
 
-            
+
         } catch (WykopException $exception) {
             $this->pushbullet->push(
                 '[furbot] Błąd API Wykopu',
